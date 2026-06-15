@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="Oncology.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="1096"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="Oncology" custom_title="0" dock_id="1" table="4,8:mainOncology"/><dock_state state="000000ff00000000fd00000001000000020000000000000000fc0100000001fb000000160064006f0063006b00420072006f00770073006500310100000000ffffffff0000011300ffffff000000000000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 1*">--How many FDA oncology approvals are included in the dataset?
+select count(*)
+from oncology;</sql><sql name="SQL 2*">--How many unique companies, drugs, and cancer types are represented?
+select 
+count (distinct company) as Company,
+count (distinct drug_name) as Drug,
+count (distinct Cancer_Type) as type
+from Oncology
+</sql><sql name="SQL 3*">--How did approval volume change by year?
+select Approval_Year,
+count(*) as approvals
+from Oncology
+group by Approval_Year
+order by Approval_Year;
+</sql><sql name="SQL 4*">--Which companies received the highest number of oncology approvals?
+select Company, count(*) as max_approval
+from Oncology
+group by Company
+order by max_approval DESC, Company ASC
+Limit 8;</sql><sql name="SQL 5*">--Which cancer types received the highest number of approvals?
+select Cancer_Type, count(*) as highest_approvals
+from Oncology
+group by Cancer_Type
+order by highest_approvals DESC, Cancer_Type ASC
+limit 8;</sql><sql name="SQL 6*">--Which treatment modalities account for the most approvals?
+select Modality, count(*) as approvals
+from Oncology
+group by Modality
+order by approvals DESC;</sql><sql name="SQL 7*">--What percentage of total approvals does each modality contribute?
+SELECT Modality, COUNT(*) as approvals,
+round (
+100.0 * count(*)/ (select count (*) from oncology),
+1
+) as pct_share
+from Oncology
+group by Modality
+order by approvals DESC;
+</sql><sql name="SQL 8*">--How are approvals distributed across tumor categories over the years?
+SELECT Approval_Year,
+       Tumor_Category,
+       COUNT(*) AS approvals
+FROM Oncology
+GROUP BY Approval_Year, Tumor_Category
+ORDER BY Approval_Year, approvals DESC;
+</sql><sql name="SQL 9*">--How concentrated is the market among companies with only a single approval?
+Select count(*) as single_approval
+from (
+	select Company
+	from Oncology
+	group by Company
+	having count(*) =1
+);</sql><sql name="SQL 10*">--How can companies be categorized based on approval portfolio size?
+select 
+case
+	when c&gt;=10 then 'Major' 
+	when c&gt;=5 then 'Mid-size'
+	else 'Niche'
+end as Size,
+count(*) as Companies
+FROM (
+	select
+	Company,
+	count(*) as c
+from Oncology
+group by Company
+)
+group by Size;
+</sql><current_tab id="9"/></tab_sql></sqlb_project>
